@@ -1420,6 +1420,34 @@
       }
 
       setStep(0);
+
+      // --- Auto-resize support for iframe embeds (e.g. GoHighLevel) ---
+      // Reports the tool's real height to the parent page so the iframe can
+      // size to the content exactly, preventing blank space or cut-off.
+      function postHeight(){
+        try {
+          if (window.parent && window.parent !== window) {
+            // Measure ONLY the widget's own content height. Do NOT use
+            // document/documentElement scrollHeight here — inside an iframe those
+            // track the iframe's viewport and cause a runaway resize feedback loop.
+            var height = Math.ceil(root.getBoundingClientRect().height);
+            if (height > 0) {
+              window.parent.postMessage({ type: "cbVisualizerHeight", height: height }, "*");
+            }
+          }
+        } catch (e) {}
+      }
+      // Report height whenever the content size changes (step changes, images loading, etc.)
+      if (typeof ResizeObserver !== "undefined") {
+        try { new ResizeObserver(function(){ postHeight(); }).observe(root); } catch (e) {}
+      }
+      window.addEventListener("load", postHeight);
+      window.addEventListener("resize", postHeight);
+      if (afterImage) afterImage.addEventListener("load", postHeight);
+      if (pickedImg) pickedImg.addEventListener("load", postHeight);
+      // A few delayed reports to catch fonts/late layout on first paint.
+      [100, 400, 1000].forEach(function(ms){ setTimeout(postHeight, ms); });
+      postHeight();
     })();
   </script>
 </div>
