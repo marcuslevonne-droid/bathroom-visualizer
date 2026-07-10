@@ -1,0 +1,87 @@
+THIS ONE V3 — FIXES APPLIED (generate button / stuck loading)
+=============================================================
+
+WHAT WAS BROKEN
+---------------
+1. API used an invalid image model. api/generate-bathroom.js defaulted to
+   "gpt-image-2", which is not a real OpenAI model, so every generation
+   returned an error. Correct model is "gpt-image-1".
+
+2. Errors were invisible. The frontend wrote error text into an element that
+   lived inside Step 1 (the photo screen). When generation failed it jumped
+   back to the contact step, where that element is hidden — so the user just
+   saw a stuck/blank loading state with no message ("silent failure").
+
+3. No image compression. Full-size iPhone photos were sent as base64 and could
+   exceed Vercel's 4.5 MB request-body limit, causing a 413 and a non-JSON
+   response that the old code could not parse.
+
+4. Non-JSON responses crashed the parser. Old code called response.json()
+   directly; a Vercel HTML error page (413/502/504) made it throw with no
+   visible message.
+
+WHAT CHANGED (files)
+--------------------
+- api/generate-bathroom.js
+    * Default model is now "gpt-image-1" (override with OPENAI_IMAGE_MODEL).
+    * Model name defined once (single source of truth).
+    * Clear JSON errors for: missing key, invalid model/no access, org not
+      verified, quota/billing, invalid key, rate limit, bad image size/format.
+    * GET returns { ok:true, message:"API is live", model, hasApiKey }.
+    * Full error detail is logged to Vercel logs; the API key is never exposed.
+
+- index.html
+    * Always-visible error banner (#cbGenError) shown above the nav on failure.
+    * Friendly message: "Something went wrong generating the preview. Please
+      try again." Actual error is logged to the browser console.
+    * Console logs: click, image present, options, request URL, status, JSON.
+    * Image is resized to max 1400px / JPEG 0.85 before upload.
+    * Responses read as text then JSON.parse'd, so HTML/timeouts are handled.
+    * 120s client abort timeout; loading is turned off in EVERY failure path.
+
+- ghl-code/THIS_ONE_no_logo_visualizer_gohighlevel.html
+    * Same fixes. API URL set to the absolute Vercel endpoint so it works when
+      pasted directly into GoHighLevel (not via iframe).
+
+- vercel.json (new)
+    * maxDuration 60s for api/generate-bathroom.js.
+
+HOW TO REDEPLOY
+---------------
+1. Push/upload this folder to the same Vercel project (git push, or drag the
+   folder in the Vercel dashboard / `vercel --prod`).
+2. In Vercel > Project > Settings > Environment Variables, confirm:
+     OPENAI_API_KEY   = your OpenAI secret key   (required)
+     OPENAI_IMAGE_MODEL = gpt-image-1            (optional; this is the default)
+3. Redeploy so the env vars take effect.
+
+HOW TO TEST
+-----------
+A. API is live (GET) — open in a browser:
+     https://thisonev3fulltoolonvercel.vercel.app/api/generate-bathroom
+   Expected JSON:
+     { "ok": true, "message": "API is live", "model": "gpt-image-1",
+       "hasApiKey": true }
+   If "hasApiKey" is false, the env var is not set on this deployment.
+
+B. Full flow — open:
+     https://thisonev3fulltoolonvercel.vercel.app
+   Upload a photo, complete the steps, fill name/phone/email, Generate Preview.
+   Open the browser console (F12) to watch the [Visualizer] logs.
+
+C. POST test (optional, from a terminal):
+     curl -X POST https://thisonev3fulltoolonvercel.vercel.app/api/generate-bathroom \
+       -H "Content-Type: application/json" \
+       -d '{"image":"data:image/png;base64,<BASE64>","project":"Walk-in shower remodel","style":"Modern spa","finish":"Santorini White","pattern":"Smooth wall pattern","features":["Glass enclosure"]}'
+
+IF IT STILL FAILS — CHECK VERCEL LOGS
+-------------------------------------
+Vercel > your project > Logs (or Functions) and look for
+"Bathroom generation error". Common causes and fixes:
+ - "organization must be verified": verify your OpenAI org at
+   platform.openai.com/settings/organization/general (required for gpt-image-1).
+ - "model ... does not exist / no access": your key can't use gpt-image-1; set
+   OPENAI_IMAGE_MODEL to a model your account can use.
+ - "insufficient_quota" / billing: add credit/billing to the OpenAI account.
+ - "invalid api key" / 401: re-check OPENAI_API_KEY in Vercel.
+The browser console and the on-screen banner now show these too.

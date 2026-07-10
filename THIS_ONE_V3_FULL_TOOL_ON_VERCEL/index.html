@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>THIS ONE AI Bathroom Visualizer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f0f7fd;
+    }
+  </style>
+</head>
+<body>
+<div id="cb-simple-visualizer">
+  <style>
+    #cb-simple-visualizer {
+      --navy:#03203b;
+      --navy-soft:#0b2f52;
+      --blue:#37a9e8;
+      --ice:#f0f7fd;
+      --card:#ffffff;
+      --text:#03203b;
+      --muted:#607487;
+      --line:rgba(3,32,59,.12);
+      --shadow:0 24px 70px rgba(3,32,59,.14);
+      --green:#16a34a;
+      --red:#dc2626;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      width:100%;
+      box-sizing:border-box;
+      background:transparent;
+      overflow:hidden;
+    }
+
+    #cb-simple-visualizer * { box-sizing:border-box; }
+    #cb-simple-visualizer button,
+    #cb-simple-visualizer input,
+    #cb-simple-visualizer textarea { font:inherit; }
+
+    #cb-simple-visualizer .cb-wrap {
+      width:100%;
+      max-width:760px;
+      margin:0 auto;
+      padding:14px;
+    }
+
+    #cb-simple-visualizer .cb-shell {
+      position:relative;
+      overflow:hidden;
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(55,169,232,.24), transparent 34%),
+        radial-gradient(circle at 95% 10%, rgba(3,32,59,.10), transparent 26%),
+        linear-gradient(135deg, #ffffff 0%, #f7fbfe 55%, #eef7ff 100%);
+      border:1px solid rgba(3,32,59,.10);
+      box-shadow:var(--shadow);
+    }
+
+    #cb-simple-visualizer .cb-shell:before {
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:conic-gradient(from 130deg, transparent, rgba(55,169,232,.18), transparent, rgba(3,32,59,.10), transparent);
+      filter:blur(30px);
+      animation:cbSoftGlow 8s ease-in-out infinite alternate;
+      pointer-events:none;
+      opacity:.8;
+    }
+
+    @keyframes cbSoftGlow {
+      from { transform:translateX(-3%) rotate(0deg); }
+      to { transform:translateX(3%) rotate(8deg); }
+    }
+
+    #cb-simple-visualizer .cb-inner {
+      position:relative;
+      z-index:2;
+    }
+
+    #cb-simple-visualizer .cb-top {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:18px 20px 14px;
+      background:rgba(255,255,255,.72);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(14px);
+    }
+
+    #cb-simple-visualizer .cb-title-block { min-width:0; }
+
+    #cb-simple-visualizer .cb-kicker {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      color:var(--navy);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      margin-bottom:5px;
+    }
+
+    #cb-simple-visualizer .cb-kicker:before {
+      content:"";
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--blue);
+      box-shadow:0 0 0 5px rgba(55,169,232,.14);
+    }
+
+    #cb-simple-visualizer .cb-top h2 {
+      margin:0;
+      font-size:clamp(24px, 4.5vw, 38px);
+      letter-spacing:-1.25px;
+      line-height:1.02;
+      color:var(--navy);
+    }
+
+    #cb-simple-visualizer .cb-top p {
+      margin:7px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+    }
+
+    #cb-simple-visualizer .cb-progress {
+      padding:13px 20px 0;
+    }
+
+    #cb-simple-visualizer .cb-progress-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:9px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+    }
+
+    #cb-simple-visualizer .cb-track {
+      width:100%;
+      height:8px;
+      background:rgba(3,32,59,.10);
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    #cb-simple-visualizer .cb-bar {
+      width:20%;
+      height:100%;
+      background:linear-gradient(90deg, var(--navy), var(--navy-soft));
+      border-radius:999px;
+      box-shadow:0 0 16px rgba(3,32,59,.25);
+      transition:.26s ease;
+    }
+
+    #cb-simple-visualizer .cb-screen-wrap {
+      padding:16px 20px 20px;
+    }
+
+    #cb-simple-visualizer .cb-card {
+      border-radius:26px;
+      background:rgba(255,255,255,.82);
+      border:1px solid var(--line);
+      box-shadow:0 16px 44px rgba(3,32,59,.08);
+      backdrop-filter:blur(14px);
+      overflow:hidden;
+    }
+
+    #cb-simple-visualizer .cb-screen {
+      display:none;
+      padding:22px;
+      animation:cbFade .22s ease both;
+    }
+
+    #cb-simple-visualizer .cb-screen.active { display:block; }
+
+    @keyframes cbFade {
+      from { opacity:0; transform:translateY(8px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    #cb-simple-visualizer .cb-step-label {
+      margin:0 0 6px;
+      color:var(--blue);
+      font-size:12px;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+      font-weight:950;
+    }
+
+    #cb-simple-visualizer h3 {
+      margin:0;
+      color:var(--navy);
+      font-size:clamp(24px, 4vw, 32px);
+      letter-spacing:-.8px;
+      line-height:1.05;
+    }
+
+    #cb-simple-visualizer .cb-copy {
+      margin:9px 0 16px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    #cb-simple-visualizer .cb-upload-zone {
+      border:1.7px dashed rgba(3,32,59,.22);
+      border-radius:24px;
+      min-height:210px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      background:
+        radial-gradient(circle at top, rgba(55,169,232,.18), transparent 42%),
+        linear-gradient(135deg, #fff, #f3faff);
+      padding:18px;
+      transition:.22s ease;
+      cursor:pointer;
+      overflow:hidden;
+    }
+
+    #cb-simple-visualizer .cb-upload-zone:hover {
+      transform:translateY(-1px);
+      border-color:rgba(55,169,232,.75);
+      box-shadow:0 16px 34px rgba(55,169,232,.12);
+    }
+
+    #cb-simple-visualizer .cb-camera {
+      width:70px;
+      height:70px;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      margin:0 auto 12px;
+      color:#fff;
+      background:linear-gradient(135deg, var(--navy), var(--navy-soft));
+      box-shadow:0 16px 30px rgba(3,32,59,.20), 0 0 28px rgba(55,169,232,.24);
+    }
+
+    #cb-simple-visualizer .cb-camera svg { width:34px; height:34px; }
+
+    #cb-simple-visualizer .cb-upload-title {
+      color:var(--navy);
+      font-size:18px;
+      font-weight:950;
+      margin-bottom:5px;
+    }
+
+    #cb-simple-visualizer .cb-help {
+      margin:0 auto;
+      max-width:310px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    #cb-simple-visualizer .cb-photo-actions {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    #cb-simple-visualizer .cb-action {
+      border:0;
+      min-height:50px;
+      border-radius:17px;
+      cursor:pointer;
+      color:#fff;
+      background:linear-gradient(135deg, var(--navy), var(--navy-soft));
+      font-weight:950;
+      transition:.2s ease;
+      box-shadow:0 12px 24px rgba(3,32,59,.16);
+    }
+
+    #cb-simple-visualizer .cb-action.alt {
+      background:#fff;
+      color:var(--navy);
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+
+    #cb-simple-visualizer .cb-action:hover { transform:translateY(-1px); }
+    #cb-simple-visualizer input[type="file"] { display:none; }
+
+    #cb-simple-visualizer .cb-picked { display:none; width:100%; }
+    #cb-simple-visualizer .cb-picked img {
+      width:100%;
+      max-height:235px;
+      object-fit:cover;
+      border-radius:20px;
+      border:1px solid var(--line);
+      display:block;
+    }
+    #cb-simple-visualizer .cb-picked span {
+      display:block;
+      margin-top:10px;
+      color:var(--green);
+      font-size:13px;
+      font-weight:950;
+    }
+
+    #cb-simple-visualizer .cb-options {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    #cb-simple-visualizer .cb-option {
+      position:relative;
+      min-height:94px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.86);
+      cursor:pointer;
+      text-align:left;
+      padding:13px;
+      transition:.2s ease;
+      color:var(--navy);
+    }
+
+    #cb-simple-visualizer .cb-option:hover {
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(3,32,59,.08);
+      border-color:rgba(55,169,232,.50);
+    }
+
+    #cb-simple-visualizer .cb-option.selected {
+      border-color:var(--navy);
+      box-shadow:0 0 0 4px rgba(3,32,59,.08), 0 14px 28px rgba(3,32,59,.08);
+      background:linear-gradient(135deg, #fff, #f5fbff);
+    }
+
+    #cb-simple-visualizer .cb-option.selected:after,
+    #cb-simple-visualizer .cb-material.selected:after,
+    #cb-simple-visualizer .cb-feature.selected:after {
+      content:"✓";
+      position:absolute;
+      top:9px;
+      right:9px;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:var(--navy);
+      color:#fff;
+      font-size:13px;
+      font-weight:950;
+    }
+
+    #cb-simple-visualizer .cb-option b,
+    #cb-simple-visualizer .cb-material b,
+    #cb-simple-visualizer .cb-feature b {
+      display:block;
+      font-size:15px;
+      line-height:1.15;
+      margin-bottom:5px;
+      color:var(--navy);
+    }
+
+    #cb-simple-visualizer .cb-option span,
+    #cb-simple-visualizer .cb-material span,
+    #cb-simple-visualizer .cb-feature span {
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.28;
+    }
+
+    #cb-simple-visualizer .cb-material-row {
+      display:flex;
+      gap:12px;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      padding:2px 2px 12px;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    #cb-simple-visualizer .cb-material-row::-webkit-scrollbar { height:7px; }
+    #cb-simple-visualizer .cb-material-row::-webkit-scrollbar-thumb { background:rgba(3,32,59,.16); border-radius:999px; }
+
+    #cb-simple-visualizer .cb-material {
+      position:relative;
+      flex:0 0 170px;
+      scroll-snap-align:start;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:10px;
+      cursor:pointer;
+      transition:.2s ease;
+      min-height:190px;
+      text-align:left;
+    }
+
+    #cb-simple-visualizer .cb-material:hover {
+      transform:translateY(-1px);
+      border-color:rgba(55,169,232,.55);
+      box-shadow:0 14px 28px rgba(3,32,59,.08);
+    }
+
+    #cb-simple-visualizer .cb-material.selected {
+      border-color:var(--navy);
+      box-shadow:0 0 0 4px rgba(3,32,59,.08);
+    }
+
+    #cb-simple-visualizer .cb-thumb {
+      height:86px;
+      border-radius:17px;
+      border:1px solid rgba(3,32,59,.08);
+      margin-bottom:10px;
+      overflow:hidden;
+      background:#e5e7eb;
+      position:relative;
+    }
+
+    #cb-simple-visualizer .cb-thumb.white { background:linear-gradient(135deg,#ffffff,#edf2f7); }
+    #cb-simple-visualizer .cb-thumb.marble { background:linear-gradient(135deg,#ffffff 0%,#e7edf2 28%,#ffffff 42%,#b9c3cc 58%,#ffffff 78%); }
+    #cb-simple-visualizer .cb-thumb.sand { background:linear-gradient(135deg,#f0e0bc,#d0b273 54%,#f7edda); }
+    #cb-simple-visualizer .cb-thumb.stone { background:linear-gradient(135deg,#d8e1e8,#9aa8b2 52%,#eef3f7); }
+    #cb-simple-visualizer .cb-thumb.warm { background:linear-gradient(135deg,#f1e4cf,#bf9875 55%,#f8efe3); }
+    #cb-simple-visualizer .cb-thumb.dark { background:linear-gradient(135deg,#0f172a,#334155 58%,#111827); }
+
+    #cb-simple-visualizer .cb-thumb.subway {
+      background-color:#f8fafc;
+      background-image:linear-gradient(#d5dde5 1px, transparent 1px), linear-gradient(90deg,#d5dde5 1px, transparent 1px);
+      background-size:44px 24px;
+    }
+    #cb-simple-visualizer .cb-thumb.smooth { background:linear-gradient(135deg,#ffffff,#eaf1f7); }
+    #cb-simple-visualizer .cb-thumb.chevron { background:repeating-linear-gradient(45deg,#f8fafc 0 12px,#dce5ec 12px 14px,#f8fafc 14px 26px); }
+    #cb-simple-visualizer .cb-thumb.herringbone { background:repeating-linear-gradient(135deg,#f8fafc 0 10px,#dce5ec 10px 12px,#f8fafc 12px 22px); }
+    #cb-simple-visualizer .cb-thumb.hex { background:radial-gradient(circle at 12px 12px,#dce5ec 2px,transparent 3px), linear-gradient(135deg,#fff,#eef4f8); background-size:24px 24px; }
+    #cb-simple-visualizer .cb-thumb.piazza { background:linear-gradient(135deg,#d5dde5,#eef3f7 40%,#9aa8b2 41%,#e8eef3); }
+
+    #cb-simple-visualizer .cb-other {
+      margin-top:8px;
+    }
+
+    #cb-simple-visualizer .cb-other input,
+    #cb-simple-visualizer input,
+    #cb-simple-visualizer textarea {
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--navy);
+      outline:none;
+      padding:13px 14px;
+      transition:.2s ease;
+    }
+
+    #cb-simple-visualizer textarea {
+      min-height:74px;
+      resize:vertical;
+    }
+
+    #cb-simple-visualizer input:focus,
+    #cb-simple-visualizer textarea:focus {
+      border-color:rgba(55,169,232,.75);
+      box-shadow:0 0 0 4px rgba(55,169,232,.12);
+    }
+
+    #cb-simple-visualizer .cb-features {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    #cb-simple-visualizer .cb-feature {
+      position:relative;
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:12px;
+      cursor:pointer;
+      text-align:left;
+      transition:.2s ease;
+    }
+
+    #cb-simple-visualizer .cb-feature:hover {
+      transform:translateY(-1px);
+      border-color:rgba(55,169,232,.55);
+    }
+
+    #cb-simple-visualizer .cb-feature.selected {
+      border-color:var(--navy);
+      box-shadow:0 0 0 4px rgba(3,32,59,.08);
+    }
+
+    #cb-simple-visualizer .cb-form-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    #cb-simple-visualizer .cb-field.full { grid-column:1 / -1; }
+    #cb-simple-visualizer .cb-label {
+      display:block;
+      font-size:12px;
+      color:var(--navy);
+      font-weight:950;
+      margin-bottom:6px;
+    }
+
+    #cb-simple-visualizer .cb-nav {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 22px 20px;
+      border-top:1px solid var(--line);
+      background:rgba(255,255,255,.62);
+    }
+
+    #cb-simple-visualizer .cb-btn {
+      min-height:50px;
+      border-radius:17px;
+      border:0;
+      cursor:pointer;
+      padding:0 19px;
+      font-weight:950;
+      transition:.2s ease;
+    }
+
+    #cb-simple-visualizer .cb-btn:hover { transform:translateY(-1px); }
+    #cb-simple-visualizer .cb-btn.secondary {
+      color:var(--navy);
+      background:#fff;
+      border:1px solid var(--line);
+    }
+    #cb-simple-visualizer .cb-btn.primary {
+      color:#fff;
+      background:linear-gradient(135deg, var(--navy), var(--navy-soft));
+      box-shadow:0 14px 26px rgba(3,32,59,.18);
+      min-width:150px;
+    }
+    #cb-simple-visualizer .cb-btn:disabled {
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    #cb-simple-visualizer .cb-error {
+      display:none;
+      margin-top:12px;
+      background:#fef2f2;
+      color:var(--red);
+      border:1px solid #fecaca;
+      padding:11px 12px;
+      border-radius:15px;
+      font-size:13px;
+      font-weight:850;
+    }
+
+    #cb-simple-visualizer .cb-modal {
+      position:fixed;
+      inset:0;
+      z-index:999999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(3,32,59,.58);
+      padding:18px;
+    }
+
+    #cb-simple-visualizer .cb-modal.open { display:flex; }
+    #cb-simple-visualizer .cb-modal-card {
+      width:min(420px, 100%);
+      border-radius:26px;
+      background:#fff;
+      box-shadow:0 30px 90px rgba(0,0,0,.24);
+      padding:22px;
+      text-align:left;
+      animation:cbFade .22s ease both;
+    }
+    #cb-simple-visualizer .cb-modal-card h4 {
+      margin:0 0 8px;
+      color:var(--navy);
+      font-size:24px;
+      letter-spacing:-.7px;
+    }
+    #cb-simple-visualizer .cb-modal-card p,
+    #cb-simple-visualizer .cb-modal-card li {
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+    #cb-simple-visualizer .cb-modal-card ul { margin:10px 0 16px; padding-left:20px; }
+    #cb-simple-visualizer .cb-modal-actions {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    #cb-simple-visualizer .cb-loading {
+      display:none;
+      min-height:340px;
+      place-items:center;
+      text-align:center;
+      padding:30px 22px;
+    }
+    #cb-simple-visualizer .cb-loading.active { display:grid; }
+    #cb-simple-visualizer .cb-loader {
+      width:76px;
+      height:76px;
+      border-radius:26px;
+      margin:0 auto 16px;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), transparent 22%),
+        linear-gradient(135deg, var(--blue), var(--navy));
+      box-shadow:0 22px 42px rgba(3,32,59,.22), 0 0 32px rgba(55,169,232,.28);
+      animation:cbPulse .9s ease-in-out infinite alternate;
+    }
+    @keyframes cbPulse {
+      from { transform:scale(.96) rotate(-2deg); }
+      to { transform:scale(1.04) rotate(2deg); }
+    }
+
+    #cb-simple-visualizer .cb-result {
+      display:none;
+      padding:18px;
+    }
+    #cb-simple-visualizer .cb-result.active { display:block; animation:cbFade .22s ease both; }
+    #cb-simple-visualizer .cb-result-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:13px;
+    }
+    #cb-simple-visualizer .cb-result-box {
+      border-radius:22px;
+      overflow:hidden;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:0 12px 28px rgba(3,32,59,.07);
+    }
+    #cb-simple-visualizer .cb-result-head {
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-weight:950;
+      font-size:14px;
+      color:var(--navy);
+    }
+    #cb-simple-visualizer .cb-pill {
+      padding:6px 9px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:950;
+      background:#f1f5f9;
+      color:var(--muted);
+    }
+    #cb-simple-visualizer .cb-pill.after { background:#dcfce7; color:var(--green); }
+    #cb-simple-visualizer .cb-imgbox {
+      position:relative;
+      height:230px;
+      background:#eef3f7;
+      overflow:hidden;
+    }
+    #cb-simple-visualizer .cb-imgbox img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    #cb-simple-visualizer .cb-imgbox.after img {
+      cursor:zoom-in;
+    }
+    #cb-simple-visualizer .cb-modal-photo {
+      max-width:min(94vw, 900px);
+      max-height:86vh;
+      border-radius:18px;
+      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      cursor:zoom-out;
+      display:block;
+      animation:cbFade .22s ease both;
+    }
+    #cb-simple-visualizer .cb-concept-layer {
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(55,169,232,.14), transparent 45%),
+        linear-gradient(0deg, rgba(255,255,255,.26), transparent 42%);
+      pointer-events:none;
+    }
+    #cb-simple-visualizer .cb-concept-note {
+      position:absolute;
+      left:10px;
+      right:10px;
+      bottom:10px;
+      background:rgba(255,255,255,.86);
+      color:var(--navy);
+      border:1px solid rgba(255,255,255,.65);
+      backdrop-filter:blur(10px);
+      border-radius:16px;
+      padding:10px;
+      font-size:12px;
+      line-height:1.3;
+      font-weight:850;
+    }
+    #cb-simple-visualizer .cb-summary {
+      margin-top:12px;
+      padding:15px;
+      border-radius:22px;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:0 12px 28px rgba(3,32,59,.06);
+    }
+    #cb-simple-visualizer .cb-summary h4 {
+      margin:0 0 5px;
+      font-size:23px;
+      color:var(--navy);
+      letter-spacing:-.7px;
+    }
+    #cb-simple-visualizer .cb-summary p {
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    #cb-simple-visualizer .cb-disclaimer {
+      margin-top:9px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
+    }
+
+    @media (max-width:600px) {
+      #cb-simple-visualizer .cb-wrap { padding:8px; }
+      #cb-simple-visualizer .cb-shell { border-radius:24px; }
+      #cb-simple-visualizer .cb-top { padding:13px 14px 11px; gap:10px; align-items:flex-start; }
+      #cb-simple-visualizer .cb-kicker { font-size:10px; margin-bottom:3px; }
+      #cb-simple-visualizer .cb-top h2 { font-size:23px; letter-spacing:-.9px; }
+      #cb-simple-visualizer .cb-top p { font-size:12.5px; margin-top:5px; }
+      #cb-simple-visualizer .cb-progress { padding:10px 14px 0; }
+      #cb-simple-visualizer .cb-progress-row { font-size:11px; margin-bottom:7px; }
+      #cb-simple-visualizer .cb-screen-wrap { padding:12px 14px 14px; }
+      #cb-simple-visualizer .cb-screen { padding:16px; }
+      #cb-simple-visualizer .cb-step-label { font-size:10.5px; margin-bottom:5px; }
+      #cb-simple-visualizer h3 { font-size:24px; }
+      #cb-simple-visualizer .cb-copy { font-size:13px; margin:8px 0 12px; }
+      #cb-simple-visualizer .cb-upload-zone { min-height:178px; border-radius:20px; padding:14px; }
+      #cb-simple-visualizer .cb-camera { width:58px; height:58px; border-radius:20px; margin-bottom:9px; }
+      #cb-simple-visualizer .cb-camera svg { width:29px; height:29px; }
+      #cb-simple-visualizer .cb-upload-title { font-size:16px; }
+      #cb-simple-visualizer .cb-help { font-size:12px; }
+      #cb-simple-visualizer .cb-photo-actions { gap:8px; }
+      #cb-simple-visualizer .cb-action { min-height:45px; border-radius:15px; font-size:14px; }
+      #cb-simple-visualizer .cb-picked img { max-height:170px; border-radius:17px; }
+      #cb-simple-visualizer .cb-options { gap:8px; }
+      #cb-simple-visualizer .cb-option { min-height:83px; border-radius:17px; padding:11px; }
+      #cb-simple-visualizer .cb-option b,
+      #cb-simple-visualizer .cb-material b,
+      #cb-simple-visualizer .cb-feature b { font-size:13.5px; }
+      #cb-simple-visualizer .cb-option span,
+      #cb-simple-visualizer .cb-material span,
+      #cb-simple-visualizer .cb-feature span { font-size:11px; }
+      #cb-simple-visualizer .cb-material { flex-basis:148px; min-height:170px; border-radius:19px; }
+      #cb-simple-visualizer .cb-thumb { height:72px; border-radius:15px; margin-bottom:8px; }
+      #cb-simple-visualizer .cb-features { gap:8px; }
+      #cb-simple-visualizer .cb-feature { min-height:67px; border-radius:16px; padding:10px; }
+      #cb-simple-visualizer .cb-form-grid { grid-template-columns:1fr; gap:8px; }
+      #cb-simple-visualizer .cb-field.full { grid-column:auto; }
+      #cb-simple-visualizer input,
+      #cb-simple-visualizer textarea { padding:11px 12px; border-radius:14px; font-size:14px; }
+      #cb-simple-visualizer textarea { min-height:58px; }
+      #cb-simple-visualizer .cb-nav { padding:11px 16px 15px; }
+      #cb-simple-visualizer .cb-btn { min-height:46px; border-radius:15px; padding:0 15px; }
+      #cb-simple-visualizer .cb-btn.primary { min-width:130px; }
+      #cb-simple-visualizer .cb-modal-card { padding:18px; border-radius:23px; }
+      #cb-simple-visualizer .cb-modal-card h4 { font-size:22px; }
+      #cb-simple-visualizer .cb-modal-actions { grid-template-columns:1fr; }
+      #cb-simple-visualizer .cb-loading { min-height:320px; }
+      #cb-simple-visualizer .cb-result { padding:15px; }
+      #cb-simple-visualizer .cb-result-grid { grid-template-columns:1fr 1fr; gap:8px; }
+      #cb-simple-visualizer .cb-result-head { padding:9px; font-size:12px; }
+      #cb-simple-visualizer .cb-pill { font-size:10px; padding:5px 7px; }
+      #cb-simple-visualizer .cb-imgbox { height:156px; }
+      #cb-simple-visualizer .cb-concept-note { font-size:10.5px; padding:7px; border-radius:12px; left:7px; right:7px; bottom:7px; }
+      #cb-simple-visualizer .cb-summary { padding:12px; border-radius:18px; }
+      #cb-simple-visualizer .cb-summary h4 { font-size:20px; }
+      #cb-simple-visualizer .cb-summary p { font-size:12px; }
+    }
+
+    @media (max-width:390px) {
+      #cb-simple-visualizer .cb-top h2 { font-size:21px; }
+      #cb-simple-visualizer h3 { font-size:22px; }
+      #cb-simple-visualizer .cb-option { min-height:78px; padding:10px; }
+      #cb-simple-visualizer .cb-material { flex-basis:140px; }
+      #cb-simple-visualizer .cb-imgbox { height:140px; }
+    }
+  </style>
+
+  <div class="cb-wrap">
+    <div class="cb-shell">
+      <div class="cb-inner">
+        <div class="cb-top">
+          <div class="cb-title-block">
+            <div class="cb-kicker">Shower & Tub Preview</div>
+            <h2>See Your Shower Before You Remodel</h2>
+            <p>Upload a photo, choose your finishes, and get a preview in seconds.</p>
+          </div>
+        </div>
+
+        <div class="cb-progress">
+          <div class="cb-progress-row">
+            <span id="cbSimpleStepText">Step 1 of 7</span>
+            <span id="cbSimpleStepName">Photo</span>
+          </div>
+          <div class="cb-track"><div class="cb-bar" id="cbSimpleBar"></div></div>
+        </div>
+
+        <div class="cb-screen-wrap">
+          <div class="cb-card">
+            <div class="cb-screen active" data-step="0">
+              <p class="cb-step-label">Step One</p>
+              <h3>Upload your shower or tub photo</h3>
+              <p class="cb-copy">Take a clear photo of the full shower or tub area. You’ll get quick photo tips before your camera opens.</p>
+
+              <div class="cb-upload-zone" id="cbSimpleUploadZone">
+                <div id="cbSimpleUploadEmpty">
+                  <div class="cb-camera">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4 8.5C4 7.1 5.1 6 6.5 6h1.6l1.2-1.7c.3-.5.9-.8 1.5-.8h2.4c.6 0 1.2.3 1.5.8L15.9 6h1.6C18.9 6 20 7.1 20 8.5v8c0 1.4-1.1 2.5-2.5 2.5h-11C5.1 19 4 17.9 4 16.5v-8Z" stroke="currentColor" stroke-width="1.8"/>
+                      <circle cx="12" cy="12.5" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+                    </svg>
+                  </div>
+                  <div class="cb-upload-title">Add Photo</div>
+                  <p class="cb-help">Use your phone camera or upload a current photo. Accepted photo types: JPG, PNG, WEBP, or HEIC.</p>
+                </div>
+                <div class="cb-picked" id="cbSimplePicked">
+                  <img id="cbSimplePickedImg" alt="Selected shower photo">
+                  <span>Photo added ✓</span>
+                </div>
+              </div>
+
+              <div class="cb-photo-actions">
+                <button type="button" class="cb-action" id="cbTakePhotoBtn">Take Photo</button>
+                <button type="button" class="cb-action alt" id="cbUploadPhotoBtn">Upload Photo</button>
+              </div>
+
+              <input id="cbTakeInput" type="file" accept="image/*" capture="environment">
+              <input id="cbUploadInput" type="file" accept="image/*">
+              <div class="cb-error" id="cbSimpleError"></div>
+            </div>
+
+            <div class="cb-screen" data-step="1">
+              <p class="cb-step-label">Step Two</p>
+              <h3>What are you remodeling?</h3>
+              <p class="cb-copy">Choose the option closest to what you want done.</p>
+              <div class="cb-options">
+                <button type="button" class="cb-option selected" data-group="project" data-value="Tub-to-shower conversion" data-low="8500" data-high="12500"><b>Tub-to-Shower</b><span>Replace tub with a walk-in shower.</span></button>
+                <button type="button" class="cb-option" data-group="project" data-value="Walk-in shower remodel" data-low="9500" data-high="14500"><b>Walk-In Shower</b><span>Update shower walls, base, and fixtures.</span></button>
+                <button type="button" class="cb-option" data-group="project" data-value="Accessible shower" data-low="10500" data-high="15500"><b>Accessible Shower</b><span>Safer entry, seating, and support options.</span></button>
+                <button type="button" class="cb-option" data-group="project" data-value="Tub and shower combo" data-low="8000" data-high="12000"><b>Tub/Shower Combo</b><span>Keep the tub with a modern surround.</span></button>
+              </div>
+            </div>
+
+            <div class="cb-screen" data-step="2">
+              <p class="cb-step-label">Step Three</p>
+              <h3>Pick your style</h3>
+              <p class="cb-copy">This controls the overall look of the final preview.</p>
+              <div class="cb-options">
+                <button type="button" class="cb-option selected" data-group="style" data-value="Modern spa"><b>Modern Spa</b><span>Bright, clean, relaxing.</span></button>
+                <button type="button" class="cb-option" data-group="style" data-value="Luxury hotel"><b>Luxury Hotel</b><span>Upscale and polished.</span></button>
+                <button type="button" class="cb-option" data-group="style" data-value="Coastal bright"><b>Coastal Bright</b><span>Light San Diego feel.</span></button>
+                <button type="button" class="cb-option" data-group="style" data-value="Warm organic"><b>Warm Organic</b><span>Soft neutrals and stone.</span></button>
+              </div>
+              <div class="cb-other"><input id="cbOtherStyle" type="text" placeholder="Other style preference (type your own)"></div>
+            </div>
+
+            <div class="cb-screen" data-step="3">
+              <p class="cb-step-label">Step Four</p>
+              <h3>Add features</h3>
+              <p class="cb-copy">Select any features you want included in the preview.</p>
+              <div class="cb-features">
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Glass enclosure" data-low="1500" data-high="2800"><b>Glass Door</b><span>Clean open look.</span></button>
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Rain shower fixture" data-low="450" data-high="900"><b>Rain Shower</b><span>Spa-style fixture.</span></button>
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Handheld shower" data-low="300" data-high="650"><b>Handheld</b><span>Flexible shower head.</span></button>
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Built-in seat" data-low="500" data-high="1100"><b>Seat</b><span>Added comfort.</span></button>
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Grab bars" data-low="250" data-high="650"><b>Grab Bars</b><span>Safer support.</span></button>
+                <button type="button" class="cb-feature" data-multi="feature" data-value="Shower niche" data-low="600" data-high="1100"><b>Niche</b><span>Storage shelf.</span></button>
+              </div>
+              <div class="cb-other"><input id="cbOtherFeatures" type="text" placeholder="Other feature request"></div>
+            </div>
+
+            <div class="cb-screen" data-step="4">
+              <p class="cb-step-label">Final Step</p>
+              <h3>Get your preview</h3>
+              <p class="cb-copy">Enter your info to unlock the visual preview and rough estimate.</p>
+              <div class="cb-form-grid">
+                <div class="cb-field"><label class="cb-label" for="cbName">Name</label><input id="cbName" type="text" placeholder="Your name"></div>
+                <div class="cb-field"><label class="cb-label" for="cbPhone">Phone</label><input id="cbPhone" type="tel" placeholder="Phone number"></div>
+                <div class="cb-field full"><label class="cb-label" for="cbEmail">Email</label><input id="cbEmail" type="email" placeholder="Email address"></div>
+                <div class="cb-field full"><label class="cb-label" for="cbNotes">Anything else?</label><textarea id="cbNotes" placeholder="Example: I want a bright white shower with glass doors and easier entry."></textarea></div>
+              </div>
+            </div>
+
+            <div class="cb-loading" id="cbSimpleLoading">
+              <div>
+                <div class="cb-loader"></div>
+                <h3>Creating your preview...</h3>
+                <p class="cb-copy">Generating your shower concept in seconds.</p>
+              </div>
+            </div>
+
+            <div class="cb-result" id="cbSimpleResult">
+              <p class="cb-step-label">Your Preview</p>
+              <h3 id="cbResultTitle">Your Shower Concept</h3>
+              <p class="cb-copy">Tap the After image to view it larger.</p>
+
+              <div class="cb-result-grid">
+                <div class="cb-result-box">
+                  <div class="cb-result-head">Current <span class="cb-pill">Before</span></div>
+                  <div class="cb-imgbox"><img id="cbBeforeImage" alt="Current shower photo"></div>
+                </div>
+                <div class="cb-result-box">
+                  <div class="cb-result-head">Concept <span class="cb-pill after">After</span></div>
+                  <div class="cb-imgbox after">
+                    <img id="cbAfterImage" alt="Shower concept preview" title="Tap to enlarge">
+                  </div>
+                </div>
+              </div>
+
+              <div class="cb-summary">
+                <p id="cbSummary">Your selected design details will appear here.</p>
+                <div class="cb-disclaimer">Preview is an AI-generated concept for planning purposes. Final results depend on measurements, product selections, and an in-home consultation.</div>
+              </div>
+            </div>
+
+            <div class="cb-error" id="cbGenError" style="margin:0 22px 4px;"></div>
+
+            <div class="cb-nav" id="cbSimpleNav">
+              <button type="button" class="cb-btn secondary" id="cbBackBtn">Back</button>
+              <button type="button" class="cb-btn primary" id="cbNextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb-modal" id="cbPhotoModal" aria-hidden="true">
+    <div class="cb-modal-card">
+      <h4>Quick photo tips</h4>
+      <p>For the best preview, capture the full shower or tub area from straight on.</p>
+      <ul>
+        <li>Step back so the full wet area is visible.</li>
+        <li>Keep the phone vertical and steady.</li>
+        <li>Use good lighting and avoid extreme close-ups.</li>
+      </ul>
+      <div class="cb-modal-actions">
+        <button type="button" class="cb-btn secondary" id="cbCancelPhoto">Cancel</button>
+        <button type="button" class="cb-btn primary" id="cbContinuePhoto">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb-modal" id="cbImageModal" aria-hidden="true">
+    <img class="cb-modal-photo" id="cbImageModalImg" alt="Enlarged shower concept preview">
+  </div>
+
+  <script>
+    (function(){
+      const root = document.getElementById("cb-simple-visualizer");
+      if (!root) return;
+
+      const screens = Array.from(root.querySelectorAll(".cb-screen"));
+      const bar = root.querySelector("#cbSimpleBar");
+      const stepText = root.querySelector("#cbSimpleStepText");
+      const stepName = root.querySelector("#cbSimpleStepName");
+      const backBtn = root.querySelector("#cbBackBtn");
+      const nextBtn = root.querySelector("#cbNextBtn");
+      const nav = root.querySelector("#cbSimpleNav");
+      const error = root.querySelector("#cbSimpleError");
+      const loading = root.querySelector("#cbSimpleLoading");
+      const result = root.querySelector("#cbSimpleResult");
+
+      const takeInput = root.querySelector("#cbTakeInput");
+      const uploadInput = root.querySelector("#cbUploadInput");
+      const takeBtn = root.querySelector("#cbTakePhotoBtn");
+      const uploadBtn = root.querySelector("#cbUploadPhotoBtn");
+      const uploadZone = root.querySelector("#cbSimpleUploadZone");
+      const uploadEmpty = root.querySelector("#cbSimpleUploadEmpty");
+      const picked = root.querySelector("#cbSimplePicked");
+      const pickedImg = root.querySelector("#cbSimplePickedImg");
+      const beforeImage = root.querySelector("#cbBeforeImage");
+      const afterImage = root.querySelector("#cbAfterImage");
+      const genError = root.querySelector("#cbGenError");
+
+      const modal = root.querySelector("#cbPhotoModal");
+      const continuePhoto = root.querySelector("#cbContinuePhoto");
+      const cancelPhoto = root.querySelector("#cbCancelPhoto");
+      const imageModal = root.querySelector("#cbImageModal");
+      const imageModalImg = root.querySelector("#cbImageModalImg");
+
+      const stepNames = ["Photo", "Project", "Style", "Features", "Contact"];
+      let currentStep = 0;
+      let chosenInput = null;
+      let photoData = "";
+
+      // THIS ONE: replace this after Vercel deploys.
+      // Example: https://your-project-name.vercel.app/api/generate-bathroom
+      const GENERATE_API_URL = "/api/generate-bathroom";
+
+      function showError(message){
+        if (!error) return;
+        error.textContent = message;
+        error.style.display = "block";
+      }
+
+      function clearError(){
+        if (!error) return;
+        error.style.display = "none";
+        error.textContent = "";
+      }
+
+      // Always-visible error banner used for the Generate Preview step.
+      function showGenError(message){
+        if (!genError) return;
+        genError.textContent = message;
+        genError.style.display = "block";
+      }
+
+      function clearGenError(){
+        if (!genError) return;
+        genError.style.display = "none";
+        genError.textContent = "";
+      }
+
+      // Resize/compress the uploaded photo before sending to the API.
+      // Keeps large iPhone photos under Vercel's request size limit and speeds up upload.
+      function compressImage(dataUrl, maxDim, quality){
+        return new Promise(function(resolve){
+          try {
+            const img = new Image();
+            img.onload = function(){
+              try {
+                let w = img.naturalWidth || img.width;
+                let h = img.naturalHeight || img.height;
+                if (!w || !h) { resolve(dataUrl); return; }
+                if (w > maxDim || h > maxDim) {
+                  const scale = Math.min(maxDim / w, maxDim / h);
+                  w = Math.round(w * scale);
+                  h = Math.round(h * scale);
+                }
+                const canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, w, h);
+                const out = canvas.toDataURL("image/jpeg", quality);
+                console.log("[Visualizer] Image compressed", {
+                  original_kb: Math.round((dataUrl.length * 0.75) / 1024),
+                  compressed_kb: Math.round((out.length * 0.75) / 1024),
+                  width: w, height: h
+                });
+                resolve(out && out.length > 0 ? out : dataUrl);
+              } catch (e) {
+                console.warn("[Visualizer] Compression failed, sending original.", e);
+                resolve(dataUrl);
+              }
+            };
+            img.onerror = function(){
+              console.warn("[Visualizer] Could not load image for compression, sending original.");
+              resolve(dataUrl);
+            };
+            img.src = dataUrl;
+          } catch (e) {
+            console.warn("[Visualizer] Compression threw, sending original.", e);
+            resolve(dataUrl);
+          }
+        });
+      }
+
+      function showPhotoTips(input){
+        chosenInput = input;
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closePhotoTips(){
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      takeBtn.addEventListener("click", function(){ showPhotoTips(takeInput); });
+      uploadBtn.addEventListener("click", function(){ showPhotoTips(uploadInput); });
+      uploadZone.addEventListener("click", function(){ showPhotoTips(uploadInput); });
+
+      cancelPhoto.addEventListener("click", closePhotoTips);
+      modal.addEventListener("click", function(e){ if (e.target === modal) closePhotoTips(); });
+      continuePhoto.addEventListener("click", function(){
+        closePhotoTips();
+        setTimeout(function(){ if (chosenInput) chosenInput.click(); }, 40);
+      });
+
+      // Click the After image to view it enlarged; click anywhere to close.
+      afterImage.addEventListener("click", function(){
+        if (!afterImage.src) return;
+        imageModalImg.src = afterImage.src;
+        imageModal.classList.add("open");
+        imageModal.setAttribute("aria-hidden", "false");
+      });
+      imageModal.addEventListener("click", function(){
+        imageModal.classList.remove("open");
+        imageModal.setAttribute("aria-hidden", "true");
+      });
+
+      function handleFile(file){
+        if (!file) return;
+        if (!file.type || !file.type.startsWith("image/")) {
+          showError("Please choose an image file.");
+          return;
+        }
+        clearError();
+        const reader = new FileReader();
+        reader.onload = function(e){
+          photoData = e.target.result;
+          pickedImg.src = photoData;
+          beforeImage.src = photoData;
+          afterImage.src = photoData;
+          uploadEmpty.style.display = "none";
+          picked.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      takeInput.addEventListener("change", function(){ handleFile(takeInput.files && takeInput.files[0]); });
+      uploadInput.addEventListener("change", function(){ handleFile(uploadInput.files && uploadInput.files[0]); });
+
+      root.querySelectorAll("[data-group]").forEach(function(el){
+        el.addEventListener("click", function(){
+          const group = el.dataset.group;
+          root.querySelectorAll('[data-group="' + group + '"]').forEach(function(item){ item.classList.remove("selected"); });
+          el.classList.add("selected");
+        });
+      });
+
+      root.querySelectorAll("[data-multi]").forEach(function(el){
+        el.addEventListener("click", function(){ el.classList.toggle("selected"); });
+      });
+
+      function setStep(index){
+        currentStep = Math.max(0, Math.min(screens.length - 1, index));
+        screens.forEach(function(screen, i){ screen.classList.toggle("active", i === currentStep); });
+        loading.classList.remove("active");
+        result.classList.remove("active");
+        nav.style.display = "flex";
+        backBtn.disabled = currentStep === 0;
+        nextBtn.textContent = currentStep === screens.length - 1 ? "Generate Preview" : "Next";
+        stepText.textContent = "Step " + (currentStep + 1) + " of " + screens.length;
+        stepName.textContent = stepNames[currentStep];
+        bar.style.width = (((currentStep + 1) / screens.length) * 100) + "%";
+      }
+
+      function getSelected(group){
+        const el = root.querySelector('[data-group="' + group + '"].selected');
+        return el ? el.dataset.value : "";
+      }
+
+      function getFeatures(){
+        return Array.from(root.querySelectorAll('[data-multi="feature"].selected')).map(function(el){ return el.dataset.value; });
+      }
+
+      function validateFinal(){
+        const name = root.querySelector("#cbName").value.trim();
+        const phone = root.querySelector("#cbPhone").value.trim();
+        const email = root.querySelector("#cbEmail").value.trim();
+        if (!name || !phone || !email) {
+          showGenError("Please add your name, phone, and email to get the preview.");
+          return false;
+        }
+        return true;
+      }
+
+      backBtn.addEventListener("click", function(){
+        clearError();
+        clearGenError();
+        if (nextBtn.dataset.mode === "call") {
+          // On the result screen, Back starts the tool over.
+          nextBtn.dataset.mode = "";
+          setStep(0);
+          return;
+        }
+        setStep(currentStep - 1);
+      });
+
+      nextBtn.addEventListener("click", function(){
+        clearError();
+        clearGenError();
+
+        if (nextBtn.dataset.mode === "call") {
+          console.log("[Visualizer] Call button clicked.");
+          window.location.href = "tel:+18333082311";
+          return;
+        }
+
+        if (currentStep === 0 && !photoData) {
+          showError("Please add a shower or tub photo first.");
+          return;
+        }
+
+        if (currentStep < screens.length - 1) {
+          setStep(currentStep + 1);
+        } else {
+          if (!validateFinal()) return;
+          generateResult();
+        }
+      });
+
+      // Shows the error, always turns loading off, and returns the user to the final step.
+      function failGenerate(friendlyMessage, actualError){
+        if (actualError !== undefined) {
+          console.error("[Visualizer] Generate failed:", actualError);
+        }
+        loading.classList.remove("active");
+        result.classList.remove("active");
+        setStep(screens.length - 1); // back to the contact step
+        nav.style.display = "flex";
+        backBtn.disabled = false;
+        nextBtn.textContent = "Generate Preview";
+        nextBtn.dataset.mode = "";
+        showGenError(friendlyMessage);
+      }
+
+      async function generateResult(){
+        console.log("[Visualizer] Generate Preview clicked.");
+        clearError();
+        clearGenError();
+
+        screens.forEach(function(screen){ screen.classList.remove("active"); });
+        result.classList.remove("active");
+        loading.classList.add("active");
+        nav.style.display = "none";
+        stepText.textContent = "Creating Preview";
+        stepName.textContent = "In Seconds";
+        bar.style.width = "100%";
+
+        const FRIENDLY = "Something went wrong generating the preview. Please try again.";
+        const controller = new AbortController();
+        // Client-side safety timeout so the UI can never hang forever.
+        const timeoutId = setTimeout(function(){ controller.abort(); }, 120000);
+
+        try {
+          if (!GENERATE_API_URL || GENERATE_API_URL.includes("PASTE_YOUR_VERCEL_API_URL_HERE")) {
+            clearTimeout(timeoutId);
+            failGenerate("Setup issue: the generator URL is not set. Please contact the site owner.",
+              "GENERATE_API_URL is not configured: " + GENERATE_API_URL);
+            return;
+          }
+
+          if (!photoData) {
+            clearTimeout(timeoutId);
+            failGenerate("Please add a shower or tub photo first.", "No photoData present.");
+            return;
+          }
+
+          const name = root.querySelector("#cbName").value.trim().split(" ")[0] || "Your";
+          const notes = root.querySelector("#cbNotes").value.trim();
+          const otherStyle = root.querySelector("#cbOtherStyle").value.trim();
+          const otherFeatures = root.querySelector("#cbOtherFeatures").value.trim();
+
+          const project = getSelected("project");
+          const style = otherStyle || getSelected("style");
+          const features = getFeatures();
+          if (otherFeatures) features.push(otherFeatures);
+
+          console.log("[Visualizer] Image data present:", Boolean(photoData),
+            "(~" + Math.round((photoData.length * 0.75) / 1024) + " KB raw)");
+          console.log("[Visualizer] Selected options:", { project: project, style: style, features: features, notes: notes });
+
+          // Compress before sending so large phone photos don't exceed the request size limit.
+          const compressed = await compressImage(photoData, 1400, 0.85);
+
+          const payload = {
+            image: compressed,
+            project: project,
+            style: style,
+            features: features,
+            notes: notes,
+            lead: {
+              name: root.querySelector("#cbName").value.trim(),
+              phone: root.querySelector("#cbPhone").value.trim(),
+              email: root.querySelector("#cbEmail").value.trim()
+            }
+          };
+
+          console.log("[Visualizer] Sending request to API:", GENERATE_API_URL);
+          const response = await fetch(GENERATE_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          console.log("[Visualizer] Response status:", response.status, response.statusText);
+
+          // Read as text first so we can handle non-JSON (HTML error pages, timeouts, etc.).
+          const rawText = await response.text();
+          let data = null;
+          try {
+            data = JSON.parse(rawText);
+          } catch (parseErr) {
+            console.error("[Visualizer] Response was not valid JSON. Raw response:", rawText.slice(0, 500));
+            if (response.status === 413) {
+              failGenerate("Your photo is too large to process. Please try a smaller photo.",
+                "413 Payload Too Large (non-JSON response).");
+            } else if (response.status === 504 || response.status === 502) {
+              failGenerate("The preview timed out. Please try again.",
+                "Gateway timeout/non-JSON response: " + response.status);
+            } else {
+              failGenerate(FRIENDLY, "Non-JSON response (" + response.status + "): " + rawText.slice(0, 300));
+            }
+            return;
+          }
+
+          console.log("[Visualizer] Returned JSON:", data);
+
+          if (!response.ok || !data || !data.imageUrl) {
+            const serverError = (data && (data.error || data.hint)) ? (data.error + (data.hint ? " — " + data.hint : "")) : ("HTTP " + response.status);
+            console.error("[Visualizer] API returned an error:", serverError, data);
+            failGenerate(FRIENDLY, serverError);
+            return;
+          }
+
+          const featureText = features.length ? features.join(", ") : "updated fixtures";
+          const noteText = notes ? " Notes: " + notes : "";
+
+          root.querySelector("#cbResultTitle").textContent = name + "'s " + style + " Shower Concept";
+          root.querySelector("#cbSummary").textContent = project + " in a " + style.toLowerCase() + " style with " + featureText + "." + noteText;
+
+          beforeImage.src = photoData;
+          afterImage.src = data.imageUrl;
+
+          console.log("[Visualizer] Preview generated successfully.");
+          loading.classList.remove("active");
+          clearGenError();
+          stepText.textContent = "Preview Ready";
+          stepName.textContent = "Done";
+          result.classList.add("active");
+          nav.style.display = "flex";
+          backBtn.disabled = false;
+          nextBtn.textContent = "Call (833) 308-2311";
+          nextBtn.dataset.mode = "call";
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (err && err.name === "AbortError") {
+            failGenerate("The preview took too long and timed out. Please try again.", err);
+          } else {
+            failGenerate(FRIENDLY, err);
+          }
+        }
+      }
+
+      setStep(0);
+    })();
+  </script>
+</div>
+</body>
+</html>
