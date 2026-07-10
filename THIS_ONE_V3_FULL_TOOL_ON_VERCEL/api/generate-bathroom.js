@@ -48,7 +48,9 @@ function buildBathroomPrompt({ project, style, finish, pattern, features = [], n
 - Do not remove the tub.
 - Update the surround, fixtures, and finish selections while keeping the same layout.
 ` : `
-- Remodel only the relevant wet area while preserving the bathroom layout.
+- Apply the custom requested remodel: "${project}".
+- Interpret it realistically and focus changes on the relevant wet area.
+- Preserve the same bathroom layout, viewpoint, and everything outside the wet area.
 `;
 
   const styleRules =

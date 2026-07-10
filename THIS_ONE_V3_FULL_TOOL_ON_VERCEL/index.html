@@ -735,6 +735,51 @@
       line-height:1.35;
     }
 
+    #cb-simple-visualizer .cb-followup {
+      margin-top:12px;
+      padding:16px;
+      border-radius:22px;
+      background:linear-gradient(135deg, #f4fbff, #eaf5ff);
+      border:1px solid rgba(55,169,232,.28);
+      box-shadow:0 12px 28px rgba(3,32,59,.06);
+      text-align:center;
+    }
+    #cb-simple-visualizer .cb-followup b {
+      display:block;
+      color:var(--navy);
+      font-size:17px;
+      margin-bottom:6px;
+    }
+    #cb-simple-visualizer .cb-followup p {
+      margin:0 0 6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    #cb-simple-visualizer .cb-callnow {
+      font-weight:900;
+      color:var(--navy) !important;
+      font-size:13.5px !important;
+      margin-top:8px !important;
+      margin-bottom:0 !important;
+    }
+    #cb-simple-visualizer .cb-callnow a {
+      color:var(--blue);
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    /* Glowing pulse for the call button on the result screen */
+    #cb-simple-visualizer .cb-btn.cb-glow {
+      background:linear-gradient(135deg, #16a34a, #0e8a3e);
+      animation:cbCallGlow 1.5s ease-in-out infinite;
+    }
+    @keyframes cbCallGlow {
+      0%   { box-shadow:0 0 0 0 rgba(22,163,74,.55), 0 14px 26px rgba(3,32,59,.18); }
+      70%  { box-shadow:0 0 0 14px rgba(22,163,74,0), 0 14px 26px rgba(3,32,59,.18); }
+      100% { box-shadow:0 0 0 0 rgba(22,163,74,0), 0 14px 26px rgba(3,32,59,.18); }
+    }
+
     @media (max-width:600px) {
       #cb-simple-visualizer .cb-wrap { padding:8px; }
       #cb-simple-visualizer .cb-shell { border-radius:24px; }
@@ -864,6 +909,7 @@
                 <button type="button" class="cb-option" data-group="project" data-value="Accessible shower" data-low="10500" data-high="15500"><b>Accessible Shower</b><span>Safer entry, seating, and support options.</span></button>
                 <button type="button" class="cb-option" data-group="project" data-value="Tub and shower combo" data-low="8000" data-high="12000"><b>Tub/Shower Combo</b><span>Keep the tub with a modern surround.</span></button>
               </div>
+              <div class="cb-other"><input id="cbOtherProject" type="text" placeholder="Other project type (type your own)"></div>
             </div>
 
             <div class="cb-screen" data-step="2">
@@ -935,6 +981,12 @@
               <div class="cb-summary">
                 <p id="cbSummary">Your selected design details will appear here.</p>
                 <div class="cb-disclaimer">Preview is an AI-generated concept for planning purposes. Final results depend on measurements, product selections, and an in-home consultation.</div>
+              </div>
+
+              <div class="cb-followup">
+                <b>You're all set! 🎉</b>
+                <p>Thanks for your request. A member of our team will reach out to you shortly to go over your project and answer any questions.</p>
+                <p class="cb-callnow">Need help right away? For immediate assistance, call <a href="tel:+18333082311">(833)&nbsp;308-2311</a>.</p>
               </div>
             </div>
 
@@ -1157,6 +1209,7 @@
         loading.classList.remove("active");
         result.classList.remove("active");
         nav.style.display = "flex";
+        nextBtn.classList.remove("cb-glow");
         backBtn.disabled = currentStep === 0;
         nextBtn.textContent = currentStep === screens.length - 1 ? "Generate Preview" : "Next";
         stepText.textContent = "Step " + (currentStep + 1) + " of " + screens.length;
@@ -1268,10 +1321,11 @@
 
           const name = root.querySelector("#cbName").value.trim().split(" ")[0] || "Your";
           const notes = root.querySelector("#cbNotes").value.trim();
+          const otherProject = root.querySelector("#cbOtherProject").value.trim();
           const otherStyle = root.querySelector("#cbOtherStyle").value.trim();
           const otherFeatures = root.querySelector("#cbOtherFeatures").value.trim();
 
-          const project = getSelected("project");
+          const project = otherProject || getSelected("project");
           const style = otherStyle || getSelected("style");
           const features = getFeatures();
           if (otherFeatures) features.push(otherFeatures);
@@ -1352,8 +1406,9 @@
           result.classList.add("active");
           nav.style.display = "flex";
           backBtn.disabled = false;
-          nextBtn.textContent = "Call (833) 308-2311";
+          nextBtn.textContent = "📞 Call (833) 308-2311";
           nextBtn.dataset.mode = "call";
+          nextBtn.classList.add("cb-glow");
         } catch (err) {
           clearTimeout(timeoutId);
           if (err && err.name === "AbortError") {

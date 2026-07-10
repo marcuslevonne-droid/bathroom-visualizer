@@ -1,5 +1,4 @@
 THIS ONE V3 — FIXES APPLIED (generate button / stuck loading)
-
 =============================================================
 
 WHAT WAS BROKEN
